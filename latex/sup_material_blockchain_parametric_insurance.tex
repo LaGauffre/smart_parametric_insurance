@@ -1,0 +1,688 @@
+%!TEX spellcheck
+\documentclass[10pt]{article}
+\renewcommand{\baselinestretch}{1.5} 
+% \documentclass[12pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{amscd, amsfonts, amsmath, amssymb, amstext, amsthm, caption, epsfig, fancyhdr, float, graphicx, latexsym, mathtools, multicol, multirow, algorithm, chngcntr}
+\usepackage{kpfonts}
+\usepackage[lofdepth,lotdepth]{subfig}
+% \usepackage{subcaption}
+\usepackage{authblk}
+\usepackage[utf8]{inputenc}
+\usepackage{bm} 
+\usepackage{enumerate}
+\usepackage{relsize}
+\usepackage{booktabs}
+\usepackage[numbers]{natbib}
+\usepackage{color}
+\usepackage{bm}
+\usepackage{parskip}
+\usepackage{newfloat}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Define the code fragment environment
+\DeclareFloatingEnvironment[fileext=frm,placement={!ht},name=Code Fragment]{codefragment}
+
+\lstdefinelanguage{Solidity}{
+    keywords={pragma, solidity, contract, returns, memory, public, pure, mapping, struct},
+    morekeywords=[2]{uint8, uint256, uint16, address, bytes32},
+    morekeywords=[3]{function},
+    morekeywords=[4]{require},
+    sensitive=true,
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    morestring=[b]",
+}
+
+\lstset{
+    language=Solidity,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    keywordstyle=[2]\color{green}\bfseries, % Style for second keyword type
+    keywordstyle=[3]\color{purple}\bfseries, % Style for second keyword type
+    keywordstyle=[4]\color{brown}\bfseries, % Style for second keyword type
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    showstringspaces=false,
+    tabsize=2,
+    breaklines=true,
+}
+
+\usepackage[pdfpagelabels,colorlinks=true,linkcolor=blue,anchorcolor=blue,citecolor=blue,filecolor=blue,menucolor=blue,runcolor=blue,urlcolor=blue]{hyperref}
+
+\usepackage{algpseudocode} % Loading after hyperref
+
+% For PGF plots
+\usepackage{pgf}
+\usepackage[utf8]{inputenc}\DeclareUnicodeCharacter{2212}{-}
+
+\usepackage{caption}
+\captionsetup{skip=0.5em}
+
+\usepackage[capitalise,nameinlink,noabbrev]{cleveref}
+\crefname{equation}{}{}
+\crefname{enumi}{}{}
+
+% Load images from subdirectory
+\graphicspath{{Figures/}}
+
+% To fix some warnings: https://tex.stackexchange.com/questions/177025/hyperref-cleveref-and-algpseudocode-same-identifier-warning
+\makeatletter
+\newcounter{algorithmicH}% New algorithmic-like hyperref counter
+\let\oldalgorithmic\algorithmic
+\renewcommand{\algorithmic}{%
+  \stepcounter{algorithmicH}% Step counter
+  \oldalgorithmic}% Do what was always done with algorithmic environment
+\renewcommand{\theHALG@line}{ALG@line.\thealgorithmicH.\arabic{ALG@line}}
+\makeatother
+
+% \newcommand{\ra}[1]{\renewcommand{\arraystretch}{#1}}
+\makeatletter
+\DeclareCaptionLabelFormat{andtable}{#1~#2  \&  \tablename~\thetable}
+\makeatletter
+
+% https://tex.stackexchange.com/questions/76273/multiple-pdfs-with-page-group-included-in-a-single-page-warning
+\pdfsuppresswarningpagegroup=1
+
+% \newcommand{\ra}[1]{\renewcommand{\arraystretch}{#1}}
+\makeatletter
+\DeclareCaptionLabelFormat{andtable}{#1~#2  \&  \tablename~\bm{\theta}ble}
+\makeatletter
+
+% % only equations which are labeled AND referenced will be numbered.
+% \usepackage{autonum}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theo}{Theorem}
+\newtheorem{coro}{Corollary}
+\newtheorem{prop}{Proposition}
+\newtheorem{property}{Property}
+\newtheorem{remark}{Remark}[section]
+\newtheorem{ex}{Example}
+\newtheorem{definition}{Definition}
+\newtheorem{hp}{Assumption}
+\newtheorem{pb}{Problem}
+
+% Distributions.
+\newcommand*{\UnifDist}{\mathsf{Unif}}
+\newcommand*{\ExpDist}{\mathsf{Exp}}
+\newcommand*{\DepExpDist}{\mathsf{DepExp}}
+\newcommand*{\GammaDist}{\mathsf{Gamma}}
+\newcommand*{\LognormalDist}{\mathsf{LogNorm}}
+\newcommand*{\WeibullDist}{\mathsf{Weib}}
+\newcommand*{\ParetoDist}{\mathsf{Par}}
+\newcommand*{\NormalDist}{\mathsf{Normal}}
+
+\newcommand*{\GeometricDist}{\mathsf{Geom}}
+\newcommand*{\BernouilliDist}{\mathsf{Ber}}
+\newcommand*{\NegBinomialDist}{\mathsf{NegBin}}
+\newcommand*{\BinomialDist}{\mathsf{Bin}}
+\newcommand*{\PoissonDist}{\mathsf{Poisson}}
+\newcommand*{\BivariatePoissonDist}{\mathsf{BPoisson}}
+\newcommand*{\CyclicalPoissonDist}{\mathsf{CPoisson}}
+
+% Sets of numbers.
+\newcommand*{\RL}{\mathbb{R}}
+\newcommand*{\NZ}{\mathbb{N}_0}
+% \newcommand*{\NL}{\mathbb{N}_+}
+
+\newcommand*{\cond}{\mid}
+\newcommand*{\given}{\,;\,}
+
+% Regarding spacing and abbreviations.
+\usepackage{xspace}
+
+% Acronyms
+% \@\xspace doesn't add space if next char is punctuation
+% However, these will give 2 .'s if used at end of sentence.
+\newcommand*{\eg}{e.g.\@\xspace}
+\newcommand*{\ie}{i.e.\@\xspace}
+
+\newcommand*{\iid}{\textsc{iid}\@\xspace}
+\newcommand*{\pdf}{\textsc{pdf}\@\xspace}
+\newcommand*{\pmf}{\textsc{pmf}\@\xspace}
+\newcommand*{\cdf}{\textsc{cdf}\@\xspace}
+\newcommand*{\abc}{{\textsc{abc}}\@\xspace}
+\newcommand*{\smc}{\textsc{smc}\@\xspace}
+\newcommand*{\mcmc}{\textsc{mcmc}\@\xspace}
+\newcommand*{\ess}{\textsc{ess}\@\xspace}
+\newcommand*{\mle}{\textsc{mle}\@\xspace}
+\newcommand*{\bic}{\textsc{bic}\@\xspace}
+\newcommand*{\kde}{\textsc{kde}\@\xspace}
+\newcommand*{\glm}{\textsc{glm}\@\xspace}
+\newcommand*{\xol}{\textsc{xol}\@\xspace}
+\newcommand*{\cpu}{\textsc{cpu}\@\xspace}
+\newcommand*{\gpu}{\textsc{gpu}\@\xspace}
+\newcommand*{\arm}{\textsc{arm}\@\xspace}
+\newcommand*{\map}{\textsc{map}\@\xspace}
+\newcommand*{\bp}{\textsc{bp}\@\xspace}
+\newcommand*{\mode}{\textsc{mode}\@\xspace}
+
+\newcommand*{\iidSim}{\overset{\text{\iid}}{\sim}}
+\newcommand*{\bt}{\bm{\bm{\theta}}}
+\newcommand*{\bTheta}{\bm{\bm{\theta}}}
+\newcommand*{\bbeta}{\bm{\beta}}
+\newcommand*{\bn}{\bm{n}}
+\newcommand*{\bs}{\bm{s}}
+\newcommand*{\bu}{\bm{u}}
+\newcommand*{\bv}{\bm{v}}
+\newcommand*{\bx}{\bm{x}}
+\newcommand*{\by}{\bm{y}}
+\newcommand*{\bH}{\bm{H}}
+
+% Roman versions of things.
+\newcommand*{\dd}{\mathop{}\!\mathrm{d}}
+\newcommand*{\e}{\mathrm{e}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\newcommand*{\norm}[1]{\lVert{} #1\rVert}
+\newcommand*{\Dis}{\mathcal{D}}
+\newcommand*{\Was}{\mathcal{W}}
+\newcommand*{\argdot}{\,\cdot\,}
+\newcommand*{\Oh}{\mathcal{O}} % Big-O notation
+
+% \DeclarePairedDelimiterXPP{\ind}[1]{\ind_}{\{}{\}}{}{#1}
+\newcommand*{\ind}{\mathbb{I}}
+
+% The specific colours used in our figures.
+\definecolor{MyBlue}{HTML}{1f77b4}
+\definecolor{MyGreen}{HTML}{2ca02c}
+\definecolor{MyRed}{HTML}{d62728}
+\definecolor{MyPurple}{HTML}{9467bd}
+\definecolor{MyBrown}{HTML}{8c564b}
+
+% Commands to have coloured text in the captions.
+\newcommand*{\CapBlue}[1]{\textcolor{MyBlue}{\textbf{#1}}}
+\newcommand*{\CapGreen}[1]{\textcolor{MyGreen}{\textbf{#1}}}
+\newcommand*{\CapRed}[1]{\textcolor{MyRed}{\textbf{#1}}}
+\newcommand*{\CapPurple}[1]{\textcolor{MyPurple}{\textbf{#1}}}
+\newcommand*{\CapBrown}[1]{\textcolor{MyBrown}{\textbf{#1}}}
+\newcommand*{\CapBlack}[1]{\textbf{#1}}
+
+\usepackage[percent]{overpic}
+\newcommand{\float}[1]{\makebox[0pt]{#1}}
+\newcommand{\subfig}[1]{\float{\Large #1}}
+\newcommand{\subfigsmall}[1]{\float{#1}}
+
+\usepackage{float}
+\usepackage{microtype}
+
+\renewcommand{\tilde}{\widetilde}
+\renewcommand{\hat}{\widehat}
+
+\usepackage{cancel}
+
+\renewcommand*{\bibfont}{\small}
+\usepackage[marginratio=1:1,height=584pt,width=480pt,tmargin=90pt]{geometry}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta}
+
+\begin{document}
+
+\title{Online accompaniement for "Collaborative and parametric insurance on the Ethereum blockchain"}
+\author[1]{Pierre-Olivier Goffard \footnote{Email: \href{mailto:goffard@unistra.fr}{goffard@unistra.fr}.}}
+\affil[1]{\footnotesize Université de Strasbourg, Institut de Recherche Mathématique Avancée, Strasbourg, France}
+\author[2]{Stéphane Loisel\footnote{Email: \href{mailto:stephane.loisel@lecnam.net}{stephane.loisel@lecnam.net}.}}
+\affil[2]{\footnotesize CNAM, Paris, France}
+
+\maketitle
+\vspace{3mm}
+
+
+We are going to review the solidity code  of the smart contract \texttt{ParametricInsurance} discussed iinn the paper entitled "Collaborative and parametric insurance on the Ethereum blockchain". We start by indicating the version of the compiler and the name of the smart contract. 
+\begin{codefragment}[!ht]
+\begin{lstlisting}[language=Solidity]
+pragma solidity 0.8.19;
+
+contract ParametricInsurance {
+---
+}
+\end{lstlisting}
+    \caption{Declaring a compiler and define a smart contract.}
+    \label{code:contractdeclaration}
+\end{codefragment}
+Solidity is a high-level programming language designed for smart contract development, where instructions are terminated with semicolons. The language is continuously evolving, with each stable release tied to a specific compiler version. This versioning ensures backward compatibility, allowing developers to compile code written in older Solidity versions and maintain stability for existing contracts. The following code fragments are intended to populate the space between the brackets following the contract declaration. In Code Fragment \ref{code:variable_declaration}, we declare several variables to monitor the state of the system.
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+    address public owner; // Ethereum address of the owner of the contract
+    uint256 public constant factor = 10 ** 4; // Numerical precision
+    uint256 public totalSupply; // Total supply of tokens
+    uint256 public rt = 10000; // Exchange rate of token against ETH
+    uint256 public sn2 = 0; // Variance of the liability
+    uint256 public mu = 0; // cumulative premium in excess of the pure premium  
+    uint256 public SCR = 0; // Value of the Solvency Capital Requirement
+    uint256 public MCR = 0; // Value of the Minimum Capital Requirement
+    uint256 public Xt; // Reserve to calculate the exchange rate
+    uint16 public eta1 = 1000; // 10% loading (1000 basis points) to reward the token holders
+    uint16 public eta2 = 500; // 5% loading (500 basis points) to reward the policyholders
+    uint16 public qAlphaSCR = 25758; // standard normal quantile of order alpha = 0.995
+    uint16 public qAlphaMCR = 10364; // standard normal quantile of order alpha = 0.995
+    uint256 public Nt; // Counter for the number of insurance contracts
+\end{lstlisting}
+    \caption{Global variable declaration that play the role of the state variable of the system.}
+    \label{code:variable_declaration}
+\end{codefragment}
+When declaring a variable in Solidity, one must specify its type, visibility, and name. A variable of type \texttt{address} stores a 20-byte value that represents the location of accounts (both externally owned accounts and smart contracts) on the Ethereum network. In Solidity, numbers can only be stored as integer values in variables of type \texttt{uint.x}, where \(x\) specifies the bit length of the number. Other basic types include strings, booleans, and fixed-size byte arrays\footnote{See \url{https://docs.soliditylang.org/en/latest/types.html}}. In Code Fragment \ref{code:struct_declaration}, we introduce a custom data type to store the relevant information for a parametric insurance contract.
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+struct InsuranceContract {
+        address customer; // Address of the policyholder
+        bytes32 EventDescription; // Description of the insured event
+        uint256 l; // Payout amount
+        uint256 p; // Probability of the event
+        uint16 eta; // loading of the premium at the underwritting time
+        uint256 refund; // Refund amount in case of bankruptcy
+        uint8 status; // Status of the contract 0 = open, 1 = closed and settled, 2 = closed without compensation, 3 = refunded
+    }
+\end{lstlisting}
+    \caption{The \texttt{struct} type to store the information relative to an insurance policy.}
+    \label{code:struct_declaration}
+\end{codefragment}
+The \texttt{bytes32} type allows for storing a fixed-size 32-byte value instead of a string. To handle event descriptions, which are typically strings, we convert them into 32-byte arrays using the helper function \texttt{stringToBytes32}, provided in Code Fragment \ref{code:stringToBytes32} in \cref{app:helper_functions}. Storing strings can be problematic because they are variable-sized arrays, making storage costs unpredictable. In contrast, \texttt{bytes32} provides a more efficient and predictable alternative for fixed-size data. Code Fragment \ref{code:mapping_declaration} defines an array to store the Ethereum addresses of all token holders.
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+    address[] public investorAddresses; // Array to store investor addresses
+\end{lstlisting}
+    \caption{Array declaration to store the addresses of the token holders}
+    \label{code:array_declaration}
+\end{codefragment}
+
+This array is essential for redistributing funds to token holders in the event of a smart contract liquidation. The implementation of this functionality is provided in Code Fragment \ref{code:redistributeToInvestors}, which defines the \texttt{redistributeToInvestors} function. Code Fragment \ref{code:mapping_declaration} declares several mappings used to store and manage key data structures within the smart contract.
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+    mapping(uint256 => InsuranceContract) public insuranceContracts; // Mapping of insurance contracts
+    mapping(address => uint256) public Yt; // Balance of investors in tokens
+\end{lstlisting}
+    \caption{Mapping declaration to iterate over the insurance policies and to keep track of the token holdings of the investors}
+    \label{code:mapping_declaration}
+\end{codefragment}
+Mappings in Solidity function as data dictionaries. The first mapping stores all the contracts that have been underwritten, while the second keeps track of the token balance for each investor. To monitor changes in the system, events are emitted whenever a significant state change occurs. Code Fragment \ref{code:event_declaration} defines the events associated with these state transitions.
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+    event ParametersUpdated(uint16 newEta1, uint16 newEta2, uint16 newQAlphaSCR, uint16 newQAlphaMCR);
+    event Fund(address indexed from, uint256 x, uint256 y);
+    event Burn(address indexed from, uint256 x, uint256 y);
+    event InsuranceUnderwritten(uint256 indexed contractId, address indexed customer, 
+    bytes32 indexed EventDescription, uint256 payoutAmount, uint8 status);
+    event ClaimSettled(uint256 indexed contractId, address indexed customer, bool payoutTransferred, uint256 Xt);
+
+\end{lstlisting}
+    \caption{Event declaration}
+    \label{code:event_declaration}
+\end{codefragment}
+The events are closely tied to the possible actions of the smart contract, as described in Section 3 of our paper. Each time an event is emitted, a corresponding record is added to the blockchain, enabling users to monitor the system's state. However, it is crucial to keep events as concise as possible, as storing data on the blockchain incurs significant costs. Developers must design events carefully so that the state of the system can be reconstructed through post-processing of the event logs.
+
+For instance, the \texttt{ClaimSettled} event includes a \texttt{bool} parameter, which indicates whether a compensation has been paid. This allows users to infer the outcome of a claim efficiently. To create an instance of \texttt{ParametricInsurance}, a \texttt{constructor} function is required, as shown in Code Fragment \ref{code:constructor_declaration}.
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+    constructor() {
+        owner = msg.sender;
+    }
+\end{lstlisting}
+    \caption{Consructor declaration}
+    \label{code:constructor_declaration}
+\end{codefragment}
+
+Since our smart contract receives ETh from investors and policyholders, then our code must include a \texttt{receive()} function as in Code fragment \ref{code:receive_function}.
+
+\begin{codefragment}[!ht]
+\begin{lstlisting}[language=Solidity]
+    receive() external payable {}
+\end{lstlisting}
+    \caption{\texttt{receive} function}
+    \label{code:receive_function}
+\end{codefragment}
+
+The owner of the contract—the blockchain user who deployed it—has the authority to modify the premium loading parameters and risk levels. This functionality is implemented through the function defined in Code Fragment \ref{code:updateParameters}.
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+   function updateParameters(uint16 newEta1, uint16 newEta2, uint16 newQAlphaSCR, uint16 newQAlphaMCR) public {
+    require(msg.sender == owner, "Only the owner can update parameters");
+    eta1 = newEta1;
+    eta2 = newEta2;
+    qAlphaSCR = newQAlphaSCR;
+    qAlphaMCR = newQAlphaMCR;
+    SCR = (sqrt(sn2) * qAlphaSCR) / factor   - mu;
+    MCR = (sqrt(sn2) * qAlphaMCR) / factor   - mu;
+    if (Xt < MCR) {
+            refundPremiumToPolicyholders();
+            if (Xt > 0){
+                redistributeToInvestors();
+            }
+            SCR=0;
+            MCR=0;
+            sn2=0;
+            mu=0;
+            rt=10000;
+            Xt=0;
+        }
+
+    emit ParametersUpdated(newEta1, newEta2, newQAlphaSCR, newQAlphaMCR);
+    }
+\end{lstlisting}
+    \caption{The \texttt{updateParameters} function}
+    \label{code:updateParameters}
+\end{codefragment}
+
+The \texttt{updateParameters} function is public, meaning it can be called externally to interact with the smart contract. The function takes as input the new values for the safety loadings \(\eta_1\) and \(\eta_2\), as well as the new quantile values of the standard normal distribution used to calculate the SCR and MCR. A \texttt{require} statement ensures that only the contract owner is authorized to execute this function. Additionally, the \texttt{emit} statement emits an event to notify all users of the parameter changes.
+
+Modifying the MCR risk level may cause the surplus \(X_t\) to fall below the MCR threshold. In such cases, the smart contract must be liquidated. Active policy premiums are refunded to policyholders using the \texttt{refundPremiumToPolicyholders} function, as shown in Code Fragment \ref{code:refundPremiumToPolicyholders}. Any remaining funds are redistributed to token holders through the \texttt{redistributeToInvestors} function, provided in Code Fragment \ref{code:redistributeToInvestors}. 
+
+Next, we examine the \texttt{fundContract} function in Code Fragment \ref{code:fundContract}.
+ 
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+   function fundContract() public payable {
+        require(msg.value > 0, "Funding amount must be greater than 0");
+        uint256 tokensToMint = (msg.value * (factor)) / rt;
+        totalSupply += tokensToMint;
+        Xt += msg.value;
+        if (Yt[msg.sender] == 0) {
+            investorAddresses.push(msg.sender);
+            }
+        Yt[msg.sender] += tokensToMint;
+        emit Fund(msg.sender, msg.value, tokensToMint);
+    }
+\end{lstlisting}
+    \caption{The \texttt{fundContract} function}
+    \label{code:fundContract}
+\end{codefragment}
+The \texttt{fundContract} function does not take any parameters. It is a public and payable function, meaning that when this function is called, the user can include an amount of \(\text{ETH}\) to be transferred to the smart contract. When deployed on the Ethereum blockchain, a contract is associated with an Ethereum address, enabling it to receive \(\text{ETH}\). A \texttt{require} statement ensures that the caller includes \(\text{ETH}\) in the transaction, which is accessed via the \texttt{msg} object\footnote{Other attributes of the \texttt{msg} object can be found at \url{https://docs.soliditylang.org/en/latest/units-and-global-variables.html}}.
+
+By providing an amount \(x\) of \(\text{ETH}\) to the contract, the investor receives \(y\) tokens, referred to as \texttt{tokensToMint}. Recall that \texttt{factor} is used to provide decimal precision, as Solidity does not support floating-point arithmetic. The function updates the global variables \texttt{Xt} (the surplus), \texttt{totalSupply}, and the mapping \texttt{Yt} (representing token balances). Finally, it emits an event to document the funding of the smart contract. 
+
+We now turn our attention to the \texttt{withdraw} function, described in Code Fragment \ref{code:withdraw}.
+
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+function withdraw(uint256 _value) public returns (bool success) {
+        require(Yt[msg.sender] >= _value, "Insufficient balance");
+        uint256 etherAmount = _value * rt / (factor);
+        require(Xt - SCR >= etherAmount, "Insufficient contract balance");
+
+        Yt[msg.sender] -= _value;
+        totalSupply -= _value;
+        Xt -= etherAmount;
+        payable(msg.sender).transfer(etherAmount);
+
+        emit Burn(msg.sender, etherAmount, _value);
+        
+        return true;
+    }
+\end{lstlisting}
+    \caption{The \texttt{withdraw} function}
+    \label{code:withdraw}
+\end{codefragment}
+
+The \texttt{withdraw} function takes the number of tokens to be burned as its parameter. The first \texttt{require} statement ensures that the investor holds a sufficient number of tokens to burn. The amount of \(\text{ETH}\) to be transferred in exchange for the tokens is calculated and stored in the local variable \texttt{etherAmount}. A second \texttt{require} statement verifies that this transfer does not cause the reserves to fall below the solvency capital requirement. The instruction \texttt{payable(msg.sender).transfer(etherAmount);} executes the transfer of \(\text{ETH}\) from the smart contract to the caller of the \texttt{withdraw} function. 
+
+Additionally, a \texttt{Burn} event is emitted to document the transaction. By tracking both \texttt{Fund} and \texttt{Burn} events, we can determine the identity of investors and their respective token holdings. The reserves provided by investors are intended to support customers in underwriting insurance policies. Customers can first inquire about the premium by calling the \texttt{getQuote} function.
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+    function getQuote(string memory EventDescription, uint256 l) public view returns (uint256) {
+        uint256 p = getRandomNumber(EventDescription);
+        uint256 pp = (l * p) / factor;
+        uint256 cp = (pp * (factor + eta1 + eta2)) / factor;
+        return cp;
+    }
+\end{lstlisting}
+    \caption{The \texttt{getQuote} function}
+    \label{code:getQuote}
+\end{codefragment}
+
+The \texttt{getQuote} function is of the \texttt{view} type, meaning it does not send a transaction to the blockchain and therefore does not incur any gas fees. This function returns the commercial premium associated with the event specified as a string parameter, \texttt{EventDescription}. The quote is determined by generating a random probability \(p\) using the helper function \texttt{getRandomNumber}, provided in Code Fragment \ref{code:getRandomNumber}. 
+
+In practice, this random generation should be replaced with a more accurate estimation of the probability of the insured event occurring. Such an estimation could be derived using a predictive model and historical data retrieved from an external API. If the customer finds the quote acceptable, they can proceed to underwrite the policy and become a policyholder by calling the \texttt{underwritePolicy} function, described in Code Fragment \ref{code:underwritePolicy}.
+
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+    function underwritePolicy(string memory EventDescription, uint256 l) public payable {
+        uint16 eta = eta1 + eta2;
+        uint256 p = getRandomNumber(EventDescription);
+        uint256 pp = (l * p) / factor;
+        uint256 cp = (pp * (factor + eta)) / factor;
+        uint256 cp1 = (pp * (factor + eta1)) / factor;
+        sn2 += (l * l) * p * (factor-p) / factor / factor;
+        mu += p * l * eta / factor / factor;
+        SCR = (sqrt(sn2) * qAlphaSCR) / factor   - mu;
+        MCR = (sqrt(sn2) * qAlphaMCR) / factor   - mu;
+        uint256 tokensToMint = (eta2 * pp) / rt;
+        totalSupply += tokensToMint;
+        if (Yt[msg.sender] == 0) {
+            investorAddresses.push(msg.sender);}
+        Yt[msg.sender] += tokensToMint;
+        rt = totalSupply > 0 ? (Xt * (factor)) / totalSupply : 1;
+        require(msg.value == cp, "Incorrect premium amount sent");
+        require(SCR <= Xt, "Payout amount exceeds reserve");
+        (bool success, ) = payable(address(this)).call{value: msg.value}("");
+        require(success, "Failed to transfer premium to reserve");
+        Nt++;
+        InsuranceContract memory policy = InsuranceContract({
+            customer: msg.sender,EventDescription: stringToBytes32(EventDescription),l: l,p:p,
+            eta: eta,refund:cp1,status: 0
+        });
+        insuranceContracts[Nt] = policy;
+        emit InsuranceUnderwritten(Nt, msg.sender, stringToBytes32(EventDescription), l, 0);
+    }
+\end{lstlisting}
+    \caption{The \texttt{underwritePolicy} function}
+    \label{code:underwritePolicy}
+\end{codefragment}
+
+To underwrite a policy, the customer must include exactly the premium amount returned by the \texttt{getQuote} function. Additional verifications ensure that the SCR resulting from adding a new policy does not exceed the available surplus. A new \texttt{InsuranceContract} instance, referred to as \texttt{policy}, is created and added to the mapping \texttt{insuranceContracts}. An \texttt{InsuranceUnderwritten} event is emitted to document the action.
+
+The normal approximation requires updating the variance of the liability (\texttt{sn}) and the cumulative premium that has not yet been acquired (\texttt{mu}). Updating the SCR involves using the square root function, which is not a built-in feature in Solidity. To address this limitation, we implemented a custom \texttt{sqrt} function, provided in Code Fragment \ref{code:sqrt}.
+
+A parametric insurance contract can be settled by calling the \texttt{settle} function, provided in Code Fragment \ref{code:settle}.
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+    function settle(uint256 contractId, string memory EventObserved) public {
+        InsuranceContract storage policy = insuranceContracts[contractId];
+        uint256 pObserved = getRandomNumber(EventObserved);
+        require(policy.customer != address(0), "Invalid contract ID");
+        require(msg.sender == owner || msg.sender == policy.customer, "Not authorized");
+        require(policy.status == 0, "Contract is not active");
+        if (pObserved < policy.p) {
+            sendPayout(payable(policy.customer), policy.l);
+            policy.status = 1; // Settled with compensation
+            updateReserveAfterSettlement(policy.l, policy.p, policy.eta, true);
+            emit ClaimSettled(contractId, policy.customer, true, Xt);
+        } else {
+            updateReserveAfterSettlement(policy.l, policy.p, policy.eta, false);
+            policy.status = 2; // Settled without compensation
+            emit ClaimSettled(contractId, policy.customer, false, Xt);
+        }
+        if (Xt < MCR) {
+            refundPremiumToPolicyholders();
+            if (Xt > 0){
+                redistributeToInvestors();
+            }
+            SCR=0; MCR=0; sn2=0; mu=0; rt=10000; Xt=0;
+        }
+    }
+\end{lstlisting}
+    \caption{The \texttt{settle} function}
+    \label{code:settle}
+\end{codefragment}
+
+The \texttt{settle} function takes the contract identifier and a description of the observed event as parameters. The parameter \texttt{EventObserved} is a string passed to the \texttt{getRandomNumber} function to generate a random number between 0 and 1. If this number is smaller than the random number \(p\) generated by applying \texttt{getRandomNumber} to \texttt{EventDescription}, a compensation must be paid. Consequently, the probability of paying compensation is exactly \(p\). The payout is transferred using the \texttt{sendPayout} function, provided in Code Fragment \ref{code:sendPayout}.
+
+The internal function \texttt{updateReserveAfterSettlement}, shown in Code Fragment \ref{code:updateReserveAfterSettlement}, updates the surplus based on whether compensation was paid. If a compensation is issued, the surplus may fall below the MCR level, triggering the termination of the contract. In such cases, the premiums of active policies are refunded to policyholders via the \texttt{refundPremiumToPolicyholders} function, detailed in Code Fragment \ref{code:refundPremiumToPolicyholders}. Any remaining surplus is redistributed to token holders using the \texttt{redistributeToInvestors} function, as provided in Code Fragment \ref{code:redistributeToInvestors}.
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+function sendPayout(address payable customer, uint256 l) internal {
+        require(address(this).balance >= l, "Insufficient reserve for payout");
+        (bool success, ) = customer.call{value: l}("");
+        require(success, "Failed to send payout to policyholder");
+    }
+\end{lstlisting}
+    \caption{The \texttt{sendPayout} function}
+    \label{code:sendPayout}
+\end{codefragment}
+
+This function verifies whether the balance, accessed via \texttt{address(this).balance}, is sufficient to cover the agreed compensation. The \texttt{updateReserveAfterSettlement} function, which is part of the \texttt{settle} function, is detailed in Code Fragment \ref{code:updateReserveAfterSettlement}.
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+function updateReserveAfterSettlement(uint256 l, uint256 p, uint256 cp, bool settlement) internal {
+        if (settlement) {
+            Xt += cp;
+            Xt -= l;
+        } else {
+            Xt += cp;
+        }
+        sn2 -= (l * l) * p * (factor-p) / factor / factor ;
+        mu -= p * l / factor;
+        SCR = (sqrt(sn2) * qAlpha) / factor   - mu * eta / factor;
+        rt = totalSupply > 0 ? (Xt * (factor)) / totalSupply : 1;
+    }
+\end{lstlisting}
+    \caption{The \texttt{updateReserveAfterSettlement} function}
+    \label{code:updateReserveAfterSettlement}
+\end{codefragment}
+
+The \texttt{updateReserveAfterSettlement} function updates the reserve and adjusts the level of risk capital accordingly. The \texttt{settlement} parameter of \texttt{updateReserveAfterSettlement} is a boolean that indicates whether a compensation has been paid. Regardless of the outcome, the premium associated with the contract is earned, and the SCR is updated to reflect the closure of the contract. Additionally, the exchange rate is recalculated, ensuring no division by zero occurs during the process.
+
+Both \texttt{sendPayout} and \texttt{updateReserveAfterSettlement} are marked as \texttt{internal}, meaning they cannot be called from outside the smart contract, ensuring they are used only within the contract’s internal logic. The function \texttt{refundPremiumToPolicyholders} in Code Fragment \ref{code:refundPremiumToPolicyholders} is also internal.
+
+\begin{codefragment}[!ht]
+\begin{lstlisting}[language=Solidity]
+function refundPremiumToPolicyholders() internal {
+    Xt = address(this).balance;
+    require(Xt > 0, "Nothing to refund");
+    uint256 TotalRefund = 0;
+    uint256 ActivePolicyCount = 0;
+    // Calculate total refund amount for active policies
+    for (uint256 i = 1; i <= Nt; i++) {
+        if (insuranceContracts[i].status == 0) { // Active contract
+            TotalRefund += insuranceContracts[i].refund;
+            ActivePolicyCount++;
+        }
+    }
+    require(TotalRefund > 0, "No active policies to refund");
+    // Check if the reserve is sufficient for full refunds
+    if (Xt >= TotalRefund) {
+        // Fully refund all policyholders
+        for (uint256 i = 1; i <= Nt; i++) {
+            if (insuranceContracts[i].status == 0) { // Active contract
+                uint256 refundAmount = insuranceContracts[i].refund;
+                insuranceContracts[i].status = 3; // Mark as refunded
+                sendPayout(payable(insuranceContracts[i].customer), refundAmount);
+                Xt -= refundAmount;}}
+    } else {
+        // Prorated refunds
+        for (uint256 i = 1; i <= Nt; i++) {
+            if (insuranceContracts[i].status == 0) { // Active contract
+                uint256 proratedRefund = (insuranceContracts[i].refund * Xt) / TotalRefund;
+                insuranceContracts[i].status = 3; // Mark as refunded
+                sendPayout(payable(insuranceContracts[i].customer), proratedRefund);}}
+        Xt = 0; // All reserve used}
+}
+
+\end{lstlisting}
+    \caption{The \texttt{refundPremiumToPolicyholders} function}
+    \label{code:refundPremiumToPolicyholders}
+\end{codefragment}
+
+The function iterates through all active policies to refund premiums to the policyholders. If the remaining surplus is insufficient to fully refund all premiums, the policyholders are weighted based on the premiums they have paid and are refunded proportionally to their contributions. 
+
+If any surplus remains after reimbursing the policyholders, it is redistributed among the token holders using the \texttt{redistributeToInvestors} function, as detailed in Code Fragment \ref{code:redistributeToInvestors}.
+
+\begin{codefragment}[!ht]
+\begin{lstlisting}[language=Solidity]
+function redistributeToInvestors() internal {
+        Xt = address(this).balance;
+        require(Xt > 0, "Nothing to distribute");
+        for (uint256 i = 0; i < investorAddresses.length; i++) {
+            address investor = investorAddresses[i];
+            uint256 investorShare = (Yt[investor] * Xt) / totalSupply;
+            Yt[investor] = 0;
+            if (investorShare > 0) {
+                sendPayout(payable(investor), investorShare);
+            }
+        }
+        Xt = 0; // All reserve distributed
+        totalSupply = 0;
+        delete investorAddresses;
+    }
+\end{lstlisting}
+    \caption{The \texttt{redistributeToInvestors} function}
+    \label{code:redistributeToInvestors}
+\end{codefragment}
+
+The function iterates over all token holders, distributing the remaining surplus proportionally to their token holdings based on the exchange rate updated after the reimbursement of premiums.
+
+Additionally, we have implemented three helper functions in Solidity. The first function converts a string value into a 32-byte number, as shown in Code Fragment \ref{code:stringToBytes32}.
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+    function stringToBytes32(string memory source) private pure returns (bytes32 result) {
+        bytes memory tempEmptyStringTest = bytes(source);
+        if (tempEmptyStringTest.length == 0) {
+            return 0x0;
+        }
+
+        assembly {
+            result := mload(add(source, 32))
+        }
+    }
+    \end{lstlisting}
+    \caption{Function to convert a character string into a 32 bytes long array.}
+    \label{code:stringToBytes32}
+\end{codefragment}
+
+The second function computes an integer-valued approximation of the square root of an integer, as shown in Code Fragment \ref{code:sqrt}.
+
+The third and final function takes a string value as input and returns a random number between 0 and 10,000. This number represents the probability of occurrence of the event described by the string.
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+    function getRandomNumber(string memory EventDescription) public pure returns (uint) {
+        // Generate a hash based only on flightNumber and departureDate
+        uint randomHash = uint(keccak256(abi.encodePacked(EventDescription)));
+        
+        // Limit the random number to the range [0, 10000]
+        return randomHash % 10001;
+    }
+    \end{lstlisting}
+    \caption{Function to generate a random probability from a string value.}
+    \label{code:getRandomNumber}
+\end{codefragment}
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+    function sqrt(uint256 y) public pure returns (uint256 z) {
+        if (y > 3) {
+            z = y;
+            uint256 x = y / 2 + 1;
+            while (x < z) {
+                z = x;
+                x = (y / x + x) / 2;
+            }
+        } else if (y != 0) {
+            z = 1;
+        }
+    }
+    \end{lstlisting}
+    \caption{Function to calculate a root square of an integer-valued number.}
+    \label{code:sqrt}
+\end{codefragment}
+
+
+
+
+
+\bibliographystyle{plainnat}
+\bibliography{blockchain_parametric_insurance}
+\end{document}
