@@ -14,4 +14,12 @@ The `python` folder includes two subdirectories:
 - **`loss_distribution` Folder**: Includes scripts to study the distribution of the individual risk model.
 
 ### 3. `solidity` Folder
-This folder contains the Solidity code for the smart contract. The main implementation can be found in:
+This folder contains the Solidity code for the smart contract. The main implementation can be found in: contracts/ParametricInsurance.sol
+
+
+Feel free to explore the repository and use the code as described in the paper.
+
+---
+
+For any questions or feedback, please contact the authors or submit an issue to this repository.
+
