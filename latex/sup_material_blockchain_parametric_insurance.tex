@@ -232,40 +232,115 @@
 \vspace{3mm}
 
 
-We are going to review the solidity code  of the smart contract \texttt{ParametricInsurance} discussed iinn the paper entitled "Collaborative and parametric insurance on the Ethereum blockchain". We start by indicating the version of the compiler and the name of the smart contract. 
+We are going to review the solidity code of the smart contract discussed in the paper entitled "Collaborative and parametric insurance on the Ethereum blockchain". The core mechanism of our parametric insurance is implemented in the contract \texttt{InsuranceLogic.sol}. It relies on two helper contract, \texttt{PricingLogic.sol} that encodes the pricing formula and \texttt{ModelPointsLogic.sol} that performs the model points aggregation of the portfolio. We first have a look at the helper contracts \texttt{PricingLogic.sol} in \cref{sec:pricinglogic_sol} and \texttt{ModelPointsLogic.sol} in \cref{sec:modelspointslogic_sol}.
+
+\section{\texttt{PricingLogic.sol}}\label{sec:pricinglogic_sol}
+
+
+\section{\texttt{ModelPointsLogic.sol}}\label{sec:modelpointslogic_sol}
+
+\section{\texttt{InsuranceLogic.sol}}\label{sec:InsuranceLogic_sol}
+
+
+We start by indicating the version of the compiler and the name of the smart contract. 
 \begin{codefragment}[!ht]
 \begin{lstlisting}[language=Solidity]
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-contract ParametricInsurance {
----
+contract PricingLogic {
+    uint256 public constant factor = 10 ** 4; // Numerical precision
+    address public owner; // Ethereum address of the owner of the contract
+    
+
+    // Define a struct to hold polynomial coefficients
+    struct PolyCoeffs {
+        int256 c0;
+        int256 c1;
+        int256 c2;
+        int256 c3;
+        int256 c4;
+    }
+
+    // Mapping from station name to polynomial coefficients
+    mapping(string => PolyCoeffs) public stationCoeffs;
+
+    constructor() {
+        owner = msg.sender;
+
+        // Initialize coefficients for "MARSEILLE-MARIGNANE"
+        stationCoeffs["MARSEILLE-MARIGNANE"] = PolyCoeffs(
+           61866466488584768,    // 6.08088853e-02 * 1e11
+            1279067435587755,     // 1.30072825e-03 * 1e11
+            -22081841812020,      // -2.22982823e-05 * 1e11
+            109525424150,         // 1.10635770e-07 * 1e11
+            -160548258           // -1.62373694e-10 * 1e11
+        );
+
+        // Initialize coefficients for "STRASBOURG-ENTZHEIM"
+        stationCoeffs["STRASBOURG-ENTZHEIM"] = PolyCoeffs(
+            76579341005774688,     // 7.53896117e-02 * 1e11
+            -322886972669433,       // -2.16506423e-04 * 1e11
+            13084236350914,        // 1.17177460e-05 * 1e11
+            -66687593698,         // -6.10554025e-08 * 1e11
+            91781331              // 8.44071936e-11 * 1e11
+        );
+    }
+
+    // function getQuote(uint256 T, string memory station, uint256 l, uint16 eta) public view returns (uint256) {
+    //     uint256 p = getProbability(T, station);
+    //     uint256 pp = (l * p) / factor;
+    //     uint256 cp = (pp * (factor + eta)) / factor;
+    //     return cp;
+    // }
+
+    function getProbability(uint256 T, string memory station) public view returns (uint) {
+        // Retrieve the coefficients for the given station
+        PolyCoeffs memory coeffs = stationCoeffs[station];
+
+        // // Scale T by 1e10 for fixed-point arithmetic
+        int256 scaledT = int256(T);
+        int result = coeffs.c4; // Start with the highest degree coefficient
+
+        // // Evaluate the polynomial using Horner's method
+        result = result * scaledT + coeffs.c3;
+        result = result * scaledT + coeffs.c2;
+        result = result * scaledT + coeffs.c1;
+        result = result * scaledT + coeffs.c0;
+
+        // Return the result scaled down by 1e10
+        return uint256(result * int256(factor) / 1e18);
+    }
 }
 \end{lstlisting}
     \caption{Declaring a compiler and define a smart contract.}
     \label{code:contractdeclaration}
 \end{codefragment}
-Solidity is a high-level programming language designed for smart contract development, where instructions are terminated with semicolons. The language is continuously evolving, with each stable release tied to a specific compiler version. This versioning ensures backward compatibility, allowing developers to compile code written in older Solidity versions and maintain stability for existing contracts. The following code fragments are intended to populate the space between the brackets following the contract declaration. In Code Fragment \ref{code:variable_declaration}, we declare several variables to monitor the state of the system.
+Solidity is a high-level programming language designed for smart contract development, where instructions are terminated with semicolons. The language is continuously evolving, with each stable release tied to a specific compiler version. This versioning ensures backward compatibility, allowing developers to compile code written in older Solidity versions and maintain stability for existing contracts. The following code fragments are intended to populate the space between the brackets following the contract declaration. In Code Fragment \ref{code:variable_PricingLogic}, we declare several variables.
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
-    address public owner; // Ethereum address of the owner of the contract
     uint256 public constant factor = 10 ** 4; // Numerical precision
-    uint256 public totalSupply; // Total supply of tokens
-    uint256 public rt = 10000; // Exchange rate of token against ETH
-    uint256 public sn2 = 0; // Variance of the liability
-    uint256 public mu = 0; // cumulative premium in excess of the pure premium  
-    uint256 public SCR = 0; // Value of the Solvency Capital Requirement
-    uint256 public MCR = 0; // Value of the Minimum Capital Requirement
-    uint256 public Xt; // Reserve to calculate the exchange rate
-    uint16 public eta1 = 1000; // 10% loading (1000 basis points) to reward the token holders
-    uint16 public eta2 = 500; // 5% loading (500 basis points) to reward the policyholders
-    uint16 public qAlphaSCR = 25758; // standard normal quantile of order alpha = 0.995
-    uint16 public qAlphaMCR = 10364; // standard normal quantile of order alpha = 0.995
-    uint256 public Nt; // Counter for the number of insurance contracts
+    address public owner; // Ethereum address of the owner of the contract
+    
+
+    // Define a struct to hold polynomial coefficients
+    struct PolyCoeffs {
+        int256 c0;
+        int256 c1;
+        int256 c2;
+        int256 c3;
+        int256 c4;
+    }
+
+    // Mapping from station name to polynomial coefficients
+    mapping(string => PolyCoeffs) public stationCoeffs;
 \end{lstlisting}
-    \caption{Global variable declaration that play the role of the state variable of the system.}
-    \label{code:variable_declaration}
+    \caption{Variable declaration of the \texttt{PricingLogic.sol} contract.}
+    \label{code:variable_PricingLogic}
 \end{codefragment}
-When declaring a variable in Solidity, one must specify its type, visibility, and name. A variable of type \texttt{address} stores a 20-byte value that represents the location of accounts (both externally owned accounts and smart contracts) on the Ethereum network. In Solidity, numbers can only be stored as integer values in variables of type \texttt{uint.x}, where \(x\) specifies the bit length of the number. Other basic types include strings, booleans, and fixed-size byte arrays\footnote{See \url{https://docs.soliditylang.org/en/latest/types.html}}. In Code Fragment \ref{code:struct_declaration}, we introduce a custom data type to store the relevant information for a parametric insurance contract.
+When declaring a variable in Solidity, one must specify its type, visibility, and name. A variable of type \texttt{address} stores a 20-byte value that represents the location of accounts (both externally owned accounts and smart contracts) on the Ethereum network. In Solidity, numbers can only be stored as integer values in variables of type \texttt{uint.x}, where \(x\) specifies the bit length of the number. Other basic types include strings, booleans, and fixed-size byte arrays\footnote{See \url{https://docs.soliditylang.org/en/latest/types.html}}. A \texttt{struct}is a custom data type that stores the coefficient of the polynomial use to smooth the probability of the triggering evet as a function of the day of the year. Mappings in Solidity function as data dictionaries. Here, we create a mapping in order to retrieve the coefficinet of the polynomial asociated to the probability of the triggering events in Marseille or Strasbourg. 
+
+In Code Fragment \ref{code:struct_declaration}, we introduce a custom data type to store the relevant information for a parametric insurance contract.
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
 struct InsuranceContract {
