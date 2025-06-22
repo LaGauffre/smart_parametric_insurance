@@ -642,7 +642,7 @@ We keep track of the total number of protocol token, the exchange of token again
     \label{code:struct_InsuranceContract}
 \end{codefragment}
 
-We further define a mapping to retrieve the policies in our portfolio. Surplus providers lock fund in the sart contrcat in exchange of what they get protocol token. Code fragment \ref{code:investors_token}
+We further define a mapping to retrieve the policies in our portfolio. Surplus providers lock fund in the smart contract in exchange of what they get protocol token. Code fragment \ref{code:investors_token}
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -654,6 +654,150 @@ mapping(address => uint256) public Yt; // Balance of investors in tokens
     \label{code:investors_token}
 \end{codefragment}
 
+As \texttt{InsuranceLogic} is the smart contract with which users primarily interact with. The action taken by users must be monitored. This is done using events defined code fragment \ref{code:events}.
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+event Fund(address indexed from, uint256 x, uint256 y);
+event Burn(address indexed from, uint256 x, uint256 y);
+event ParametersUpdated(uint16 newEta, uint16 newQAlphaSCR, uint16 newQAlphaMCR, uint256 newSCR, uint256 newMCR);
+event InsuranceUnderwritten(uint256 indexed contractId, address indexed customer, uint256 T, bytes32 station, uint256 l, uint256 cp, uint8 status, uint256 newSCR, uint256 newMCR); 
+event ClaimSettled(uint256 indexed contractId, address indexed customer, bool payoutTransferred, uint256 newSCR, uint256 newMCR);
+\end{lstlisting}
+    \caption{Event definition of \texttt{InsuranceLogic}}
+    \label{code:events}
+\end{codefragment}
+
+Users interact with the smart contrcat via method and each method is associated to an event. An event is being "thrown" everytime a method gets called meaning that the event data is recorded in the blockchain.\\ 
+
+In order to use methods from \texttt{PricingLogic} and \texttt{ModelPointsLogic} we must instantiate them and include them in the \texttt{constructor} of \texttt{InsuranceLogic} as shown in code fragment \ref{code:constructor_InsuranceLogic}.
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+IPricingLogic public pricingLogic;
+    IModelPointsLogic public modelPointsLogic;
+
+    constructor(address _pricingLogicAddress, address _modelPointsLogicAddress) {
+        owner = msg.sender;
+        pricingLogic = IPricingLogic(_pricingLogicAddress);
+        modelPointsLogic = IModelPointsLogic(_modelPointsLogicAddress);
+    }
+
+    \end{lstlisting}
+    \caption{Constructor of \texttt{InsuranceLogic}}
+    \label{code:constructor_InsuranceLogic}
+\end{codefragment}
+
+A \texttt{receive} method, see code fragment \ref{code:receive_method} must be added to enable the smart contract to collect funds from investors but also the premium from policyholder
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+receive() external payable {}
+    \end{lstlisting}
+    \caption{Receive method of \texttt{InsuranceLogic}}
+    \label{code:receive_method}
+\end{codefragment}
+
+The contract owner can change the parameters of the parametric insurancee scheme. These parameters are the premium loading and the risk level of the solvency capitals. The solidity code of the \texttt{updateParameters} method is provided in code fragment \ref{code:updateParameters_method}.
+
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+function updateParameters(uint16 newEta, uint16 newQAlphaSCR, uint16 newQAlphaMCR) public {
+    require(msg.sender == owner, "Only the owner can update parameters");
+    eta = newEta;
+    qAlphaSCR = newQAlphaSCR;
+    qAlphaMCR = newQAlphaMCR;
+    if (Nt_MP_active >= Nt_MP_active_min) {
+
+        SCR = sn * qAlphaSCR / factor + sn * gamma1 * qAlphaSCR * qAlphaSCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
+        MCR = sn * qAlphaMCR / factor + sn * gamma1 * qAlphaMCR * qAlphaMCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
+    }
+    if (Xt < MCR) {
+            refundPremiumToPolicyholders();
+            if (Xt > 0){
+                redistributeToInvestors();
+            }
+            SCR=0;
+            MCR=0;
+            sn=0;
+            mu=0;
+            gamma1=0;
+            rt=10000;
+            Xt=0;
+            Nt_MP_active=0;
+            modelPointsLogic.cancelAllActiveContracts();
+        }
+
+    emit ParametersUpdated(newEta, newQAlphaSCR, newQAlphaMCR, SCR, MCR);
+    }
+        \end{lstlisting}
+    \caption{updateParameters method of \texttt{InsuranceLogic}}
+    \label{code:updateParameters_method}
+\end{codefragment}
+
+A change in the order of the quantile of the normal distribution used to calculate the Value-at-Risk implies an update of the MCR and SCR. \\
+
+The surplus provider locks funds on the smart contarct in exchange of what they get protocol tokens. This mechanism is encoded in the \texttt{fundContract} method shown in code fragment \ref{code:fundContract_method}.
+
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+function fundContract() public payable {
+        require(msg.value > 0, "Funding amount must be greater than 0");
+        uint256 tokensToMint = (msg.value * (factor)) / rt;
+        totalSupply += tokensToMint;
+        Xt += msg.value;
+        if (Yt[msg.sender] == 0) {
+            investorAddresses.push(msg.sender);
+            }
+        Yt[msg.sender] += tokensToMint;
+        emit Fund(msg.sender, msg.value, tokensToMint);
+    }
+        \end{lstlisting}
+    \caption{fundContract method of \texttt{InsuranceLogic}}
+    \label{code:fundContract_method}
+\end{codefragment}
+
+We store the address of the surplus provider in case it is a new comer and we further update the token holdings and the total supply of token as new units are being minted. The converse operation consists in burning protocol token and withdrawing ETH. This can be done via the \texttt{withdraw} method provided in code fragment \ref{code:withdraw}.
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+ function withdraw(uint256 _value) public returns (bool success) {
+        require(Yt[msg.sender] >= _value, "Insufficient balance");
+        uint256 etherAmount = _value * rt / (factor);
+        require(Xt - SCR >= etherAmount, "Insufficient contract balance");
+
+        Yt[msg.sender] -= _value;
+        totalSupply -= _value;
+        Xt -= etherAmount;
+        payable(msg.sender).transfer(etherAmount);
+
+        emit Burn(msg.sender, etherAmount, _value);
+        
+        return true;
+    }
+\end{lstlisting}
+    \caption{withdraw method of \texttt{InsuranceLogic}}
+    \label{code:withdraw_method}
+\end{codefragment}
+
+Before buying coverage from our smart contract, customers can ask for a quote using the \texttt{getQuote}.
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+function getQuote(uint256 T, string memory station, uint256 l) public view returns (uint256) {
+        uint256 p = pricingLogic.getProbability(T, station);
+        uint256 pp = (l * p) / factor;
+        uint256 cp = (pp * (factor + eta)) / factor;
+        return cp;
+    }
+\end{lstlisting}
+    \caption{getQuote method of \texttt{InsuranceLogic}}
+    \label{code:getQuote_method}
+\end{codefragment}
+
+The premium calculation relies on the \texttt{getProbability} method of \texttt{PricingLogic}.
 
 
 % In Code Fragment \ref{code:struct_declaration}, we introduce a custom data type to store the relevant information for a parametric insurance contract.

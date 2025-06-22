@@ -150,8 +150,7 @@ contract InsuranceLogic{
             sn = sqrt(sn2);
             uint256 gamma1_unormalized = modelPointsLogic.gamma1_unormalized();
             gamma1 = gamma1_unormalized / sn / sn / sn;
-            // // SCR = (sqrt(sn2) * qAlphaSCR) / factor - mu;
-            // // MCR = (sqrt(sn2) * qAlphaMCR) / factor - mu;
+            
             SCR = sn * qAlphaSCR / factor + sn * gamma1 * qAlphaSCR * qAlphaSCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
             MCR = sn * qAlphaMCR / factor + sn * gamma1 * qAlphaMCR * qAlphaMCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
         }
@@ -182,8 +181,6 @@ contract InsuranceLogic{
                 sn = sqrt(sn2);
                 uint256 gamma1_unormalized = modelPointsLogic.gamma1_unormalized();
                 gamma1 = gamma1_unormalized / sn / sn / sn;
-                // // SCR = (sqrt(sn2) * qAlphaSCR) / factor - mu;
-                // // MCR = (sqrt(sn2) * qAlphaMCR) / factor - mu;
                 SCR = sn * qAlphaSCR / factor + sn * gamma1 * qAlphaSCR * qAlphaSCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
                 MCR = sn * qAlphaMCR / factor + sn * gamma1 * qAlphaMCR * qAlphaMCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
                 }
@@ -211,8 +208,7 @@ contract InsuranceLogic{
             sn = sqrt(sn2);
             uint256 gamma1_unormalized = modelPointsLogic.gamma1_unormalized();
             gamma1 = gamma1_unormalized / sn / sn / sn;
-            // // SCR = (sqrt(sn2) * qAlphaSCR) / factor - mu;
-            // // MCR = (sqrt(sn2) * qAlphaMCR) / factor - mu;
+            
             SCR = sn * qAlphaSCR / factor + sn * gamma1 * qAlphaSCR * qAlphaSCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
             MCR = sn * qAlphaMCR / factor + sn * gamma1 * qAlphaMCR * qAlphaMCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
             }
