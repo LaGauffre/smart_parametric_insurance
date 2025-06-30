@@ -63,6 +63,7 @@ contract InsuranceLogic{
         pricingLogic = IPricingLogic(_pricingLogicAddress);
         modelPointsLogic = IModelPointsLogic(_modelPointsLogicAddress);
     }
+    
     receive() external payable {}
 
     function updateParameters(uint16 newEta, uint16 newQAlphaSCR, uint16 newQAlphaMCR) public {

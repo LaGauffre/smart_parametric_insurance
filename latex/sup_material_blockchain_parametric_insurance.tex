@@ -232,11 +232,13 @@
 \vspace{3mm}
 
 
-We are going to review the solidity code of the smart contract discussed in the paper entitled "Collaborative and parametric insurance on the Ethereum blockchain". The core mechanism of our parametric insurance is implemented in the contract \texttt{InsuranceLogic.sol}. It relies on two helper contract, \texttt{PricingLogic.sol} that encodes the pricing formula and \texttt{ModelPointsLogic.sol} that performs the model points aggregation of the portfolio. We first have a look at the helper contracts \texttt{PricingLogic.sol} in \cref{sec:pricinglogic_sol} and \texttt{ModelPointsLogic.sol} in \cref{sec:modelspointslogic_sol}.
+We will review the Solidity code of the smart contract discussed in the paper titled \textit{Collaborative and Parametric Insurance on the Ethereum Blockchain}. The core mechanism of our parametric insurance is implemented in the contract \texttt{InsuranceLogic.sol}. It relies on two helper contracts: \texttt{PricingLogic.sol}, which encodes the pricing formula, and \texttt{ModelPointsLogic.sol}, which performs the model point aggregation for the portfolio. We will first examine the helper contracts, \texttt{PricingLogic.sol} in \cref{sec:pricinglogic_sol} and \texttt{ModelPointsLogic.sol} in \cref{sec:modelpointslogic_sol}. We will then explore the methods of the main smart contract in \cref{sec:InsuranceLogic_sol}.
+
 
 \section{\texttt{PricingLogic.sol}}\label{sec:pricinglogic_sol}
 
-We start by indicating the version of the compiler and the name of the smart contract in code fragment \ref{code:PricingLogic_declaration}.
+We start by indicating the version of the compiler and the name of the smart contract in code fragment~\ref{code:PricingLogic_declaration}.
+
 
 \begin{codefragment}[!ht]
 \begin{lstlisting}[language=Solidity]
@@ -251,7 +253,8 @@ contract PricingLogic {
     \label{code:PricingLogic_declaration}
 \end{codefragment}
 
-Solidity is a high-level programming language designed for smart contract development, where instructions are terminated with semicolons. The language is continuously evolving, with each stable release tied to a specific compiler version. This versioning ensures backward compatibility, allowing developers to compile code written in older Solidity versions and maintain stability for existing contracts. The following code fragments are intended to populate the space between the brackets following the contract declaration. In Code Fragment \ref{code:variable_PricingLogic}, we declare several variables.
+Solidity is a high-level programming language designed for smart contract development, where instructions are terminated with semicolons. The language is continuously evolving, with each stable release tied to a specific compiler version. This versioning ensures backward compatibility, allowing developers to compile code written in older Solidity versions and maintain stability for existing contracts. The following code fragments are intended to populate the space between the brackets following the contract declaration. In Code Fragment~\ref{code:variable_PricingLogic}, we declare several variables.
+
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
     uint256 public constant factor = 10 ** 4; // Numerical precision
@@ -273,7 +276,9 @@ Solidity is a high-level programming language designed for smart contract develo
     \caption{Variable declaration of the \texttt{PricingLogic.sol} contract.}
     \label{code:variable_PricingLogic}
 \end{codefragment}
-When declaring a variable in Solidity, one must specify its type, visibility, and name. A variable of type \texttt{address} stores a 20-byte value that represents the location of accounts (both externally owned accounts and smart contracts) on the Ethereum network. In Solidity, numbers can only be stored as integer values in variables of type \texttt{uint.x}, where \(x\) specifies the bit length of the number. Other basic types include strings, booleans, and fixed-size byte arrays\footnote{See \url{https://docs.soliditylang.org/en/latest/types.html}}. A \texttt{struct}is a custom data type that stores the coefficient of the polynomial use to smooth the probability of the triggering evet as a function of the day of the year. Mappings in Solidity function as data dictionaries. Here, we create a mapping in order to retrieve the coefficinet of the polynomial asociated to the probability of the triggering events in Marseille or Strasbourg. The constructor method in \ref{code:constructor_PricingLogic} initialize the contract's data. 
+When declaring a variable in Solidity, one must specify its type, visibility, and name. A variable of type \texttt{address} stores a 20-byte value that represents the location of accounts (both externally owned accounts and smart contracts) on the Ethereum network. In Solidity, numbers can only be stored as integer values in variables of type \texttt{uint$x$}, where $x$ specifies the bit length of the number. Other basic types include strings, booleans, and fixed-size byte arrays\footnote{See \url{https://docs.soliditylang.org/en/latest/types.html}}. A \texttt{struct} is a custom data type that can store various data fields; in this context, it is used to store the coefficients of the polynomial used to smooth the probability of the triggering event as a function of the day of the year. Mappings in Solidity function as data dictionaries. Here, we create a mapping to retrieve the coefficients of the polynomial associated with the probability of triggering events in locations such as Marseille or Strasbourg. The constructor method in~\ref{code:constructor_PricingLogic} initializes the contract's data.
+
+
 
 \begin{codefragment}[!ht]
 \begin{lstlisting}[language=Solidity]
@@ -304,7 +309,8 @@ When declaring a variable in Solidity, one must specify its type, visibility, an
     \label{code:constructor_PricingLogic}
 \end{codefragment}
 
-Here it sets the value of coefficient of the polynomial approximation of the triggering event probability in Marseille and Strasbourg.  The conract only have one mehod called \texttt{getProbability} taht takes as argument \texttt{T} the day of the year and \texttt{station} which indicates the location. The code is provided in code fragment \ref{code:event_declaration}.
+We set the value of the coefficients associated to the polynomial approximation of the triggering event probability in Marseille and Strasbourg.  The conract only have one mehod called \texttt{getProbability} taht takes as argument \texttt{T} the day of the year and \texttt{station} which indicates the location. The code is provided in code fragment \ref{code:getProbability_method}.
+
 \begin{codefragment}[!ht]
 \begin{lstlisting}[language=Solidity]
     function getProbability(uint256 T, string memory station) public view returns (uint) {
@@ -326,15 +332,15 @@ Here it sets the value of coefficient of the polynomial approximation of the tri
     }
 
 \end{lstlisting}
-    \caption{Declaring a compiler and define a smart contract.}
+    \caption{\texttt{getProbability} method of the \texttt{PricingLogic} contract.}
     \label{code:getProbability_method}
 \end{codefragment}
 
- This method returns the probability that that the level of precipitation exceeds $5$mm on a particular day and at a particular location. This method will be called within the \texttt{InsuranceLogic} contract to provide a quote to customer. 
+ This method returns the probability that the level of precipitation exceeds 5~mm on a particular day and at a particular location. This method will be called within the \texttt{InsuranceLogic} contract to provide a quote to a customer.
 
 \section{\texttt{ModelPointsLogic.sol}}\label{sec:modelpointslogic_sol}
 
-The second auxiliary contract is called \texttt{ModelPointsLogic}, see code fragmet \ref{code:declaration_ModelPointsLogic}.
+The second auxiliary contract is called \texttt{ModelPointsLogic}; see code fragment~\ref{code:declaration_ModelPointsLogic}.
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -348,7 +354,8 @@ contract ModelPointsLogic {
     \label{code:declaration_ModelPointsLogic}
 \end{codefragment}
 
-The goal of this smart contract is to monitor our parametric insurance portfolio by keeping track of the mean, variance and skewness of the liability distribution. The liability of the parametric insurance portfolio corresponds to the pay out asociated to model points that reprsents a group of contract. The variable of \texttt{ModelPointsLogic} are given in code fragment \ref{code:variables_ModelPointsLogic}.
+The goal of this smart contract is to monitor our parametric insurance portfolio by keeping track of the mean, variance, and skewness of the liability distribution. The liability of the parametric insurance portfolio corresponds to the payout associated with model points that represent a group of contracts. The variables of \texttt{ModelPointsLogic} are given in code fragment~\ref{code:variables_ModelPointsLogic}.
+
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -365,7 +372,8 @@ The goal of this smart contract is to monitor our parametric insurance portfolio
     \label{code:variables_ModelPointsLogic}
 \end{codefragment}
 
-The variable \texttt{mu} is the mean of the liability, the variable \texttt{sn2} is the variance of the liability and \texttt{gamma1$\_$unormalized} is the skewness of the liability time the stadard deviation to the power $3/2$ which allows us to just sum of the unormalized skewness coeficients associated to each model points. We keep track of the number of parametric insurance cintract, the number of model points ever created but also and more importantly the number of active model points that is those for which the teh event date is still ahead of us. Note that the number of active model points must be higher than a threshold ($5$ in our implementation) in order to use the normal approximation to calculate the solvency capitals. In code fragment \ref{code:struct_ModelPointsLogic}  we define two data structure to store the informations of parametric insurance contracts and model points respectively. 
+The variable \texttt{mu} is the mean of the liability, the variable \texttt{sn2} is the variance of the liability, and \texttt{gamma1\_unormalized} is the skewness of the liability times the standard deviation to the power of $3/2$. This allows us to simply sum the unnormalized skewness coefficients associated with each model point. We keep track of the number of parametric insurance contracts, the number of model points ever created, and, more importantly, the number of active model points, which are those for which the event date is still ahead of us. Note that the number of active model points must be higher than a threshold (5 in our implementation) in order to use the normal approximation to calculate the solvency capitals. In code fragment~\ref{code:struct_ModelPointsLogic}, we define two data structures to store the information of parametric insurance contracts and model points, respectively.
+ 
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -400,7 +408,8 @@ The variable \texttt{mu} is the mean of the liability, the variable \texttt{sn2}
     \label{code:struct_ModelPointsLogic}
 \end{codefragment}
 
-Sets of parametric isnurance contracts and model points are then indexed using mappings. The constructor method is not so inetresting for the \texttt{ModelPointsLogic} contract and so we omit it here. Code fragments \ref{code:addInsuranceContract_1}, \ref{code:addInsuranceContract_2} and \ref{code:addInsuranceContract_3} show the \texttt{addInsuranceContract} method.
+Sets of parametric insurance contracts and model points are then indexed using mappings. The constructor method is not particularly interesting for the \texttt{ModelPointsLogic} contract, and so we omit it here. Code fragments~\ref{code:addInsuranceContract_1}, \ref{code:addInsuranceContract_2}, and~\ref{code:addInsuranceContract_3} show the \texttt{addInsuranceContract} method.
+
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -489,7 +498,8 @@ Sets of parametric isnurance contracts and model points are then indexed using m
     \label{code:addInsuranceContract_3}
 \end{codefragment}
 
-When a new parametric insurance contract is added to the portfolio, the portfolio of model points is updated along with the moments of the liability. These informations are then forwarded to the \texttt{InsuranceLogic} contract that calculates the solvency capital requirements. We also have a method to remove a policy from the portfolio as it can be closed or cancelled. The solidity code is provided in coe fragaments \ref{code:removeInsuranceContract_1} and \ref{code:removeInsuranceContract_2}.
+When a new parametric insurance contract is added to the portfolio, the portfolio of model points is updated along with the moments of the liability. This information is then forwarded to the \texttt{InsuranceLogic} contract, which calculates the solvency capital requirements. We also have a method to remove a policy from the portfolio, as it can be closed or canceled. The Solidity code is provided in code fragments~\ref{code:removeInsuranceContract_1} and~\ref{code:removeInsuranceContract_2}.
+
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -555,7 +565,8 @@ When a new parametric insurance contract is added to the portfolio, the portfoli
 
 \newpage
 
-As the smart contract may be going under a reset if the surplus is falling below the Minimum Capital Required then all the remaining active policies are being cancelled. The portfolio then needs to be updated which is possible with the \texttt{cancelAllActiveContracts} method of code fragment \ref{code:cancelAllActiveContracts}.
+As the smart contract may undergo a reset if the surplus falls below the Minimum Capital Required, all the remaining active policies are canceled. The portfolio then needs to be updated, which is possible with the \texttt{cancelAllActiveContracts} method of code fragment~\ref{code:cancelAllActiveContracts}.
+
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -572,7 +583,8 @@ function cancelAllActiveContracts() public {
 \end{codefragment}
 
 \section{\texttt{InsuranceLogic.sol}}\label{sec:InsuranceLogic_sol}
-The core mechanism of our parametric insurance solution on the blockchain is implemented in \texttt{InsuranceLogic}. We start by declaring the dependencies of our contract with respect to \texttt{PricingLogic} and \texttt{ModelPointsLogic} in code fragment \ref{code:dependency_InsuranceLogic}.
+The core mechanisms of our parametric insurance solution on the blockchain are implemented in \texttt{InsuranceLogic}. We start by declaring the dependencies of our contract with respect to \texttt{PricingLogic} and \texttt{ModelPointsLogic} in code fragment~\ref{code:dependency_InsuranceLogic}.
+
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -594,7 +606,8 @@ interface IModelPointsLogic {
     \label{code:dependency_InsuranceLogic}
 \end{codefragment}
 
-This is done using interface in which we also indicate the state variables and methods from \texttt{PricingLogic} and \texttt{ModelPointsLogic} that we will be using. We then declare our smart contract together with its variables in code fragment \ref{code:declaration_InsuranceLogic}.
+This is done using interfaces in which we also indicate the state variables and methods from \texttt{PricingLogic} and \texttt{ModelPointsLogic} that we will be using. We then declare our smart contract together with its variables in code fragment~\ref{code:declaration_InsuranceLogic}.
+
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -621,7 +634,8 @@ contract InsuranceLogic{
     \label{code:declaration_InsuranceLogic}
 \end{codefragment}
 
-We keep track of the total number of protocol token, the exchange of token against ETH and the surplus. We have the initial values of the parameters corresponding to the safety loading and the risk level associated to the solvency capitals. We monitor the number of parametric insurance contract as well as the number of model points. The moments of the liability are derived from the informations provided by \texttt{ModelPointsLogic}. Code fragment \ref{code:struct_InsuranceContract} defines a data structure to store the information associated to a parametric insurance contract.  
+We keep track of the total number of protocol tokens, the exchange of tokens against ETH, and the surplus. We have the initial values of the parameters corresponding to the safety loading and the risk level associated with the solvency capitals. We monitor the number of parametric insurance contracts as well as the number of model points. The moments of the liability are derived from the information provided by \texttt{ModelPointsLogic}. Code fragment~\ref{code:struct_InsuranceContract} defines a data structure to store the information associated with a parametric insurance contract.
+
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -642,7 +656,8 @@ We keep track of the total number of protocol token, the exchange of token again
     \label{code:struct_InsuranceContract}
 \end{codefragment}
 
-We further define a mapping to retrieve the policies in our portfolio. Surplus providers lock fund in the smart contract in exchange of what they get protocol token. Code fragment \ref{code:investors_token}
+We further define a mapping to retrieve the policies in our portfolio. Surplus providers lock funds in the smart contract in exchange for protocol tokens, as shown in code fragment~\ref{code:investors_token}.
+
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -654,7 +669,8 @@ mapping(address => uint256) public Yt; // Balance of investors in tokens
     \label{code:investors_token}
 \end{codefragment}
 
-As \texttt{InsuranceLogic} is the smart contract with which users primarily interact with. The action taken by users must be monitored. This is done using events defined code fragment \ref{code:events}.
+Since \texttt{InsuranceLogic} is the smart contract with which users primarily interact, the actions taken by users must be monitored. This is done using events defined in code fragment~\ref{code:events}.
+
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -668,9 +684,10 @@ event ClaimSettled(uint256 indexed contractId, address indexed customer, bool pa
     \label{code:events}
 \end{codefragment}
 
-Users interact with the smart contrcat via method and each method is associated to an event. An event is being "thrown" everytime a method gets called meaning that the event data is recorded in the blockchain.\\ 
+Users interact with the smart contract via methods, and each method is associated with an event. An event is emitted every time a method is called, meaning that the event data is recorded on the blockchain.
 
-In order to use methods from \texttt{PricingLogic} and \texttt{ModelPointsLogic} we must instantiate them and include them in the \texttt{constructor} of \texttt{InsuranceLogic} as shown in code fragment \ref{code:constructor_InsuranceLogic}.
+In order to use methods from \texttt{PricingLogic} and \texttt{ModelPointsLogic}, we must instantiate them and include them in the \texttt{constructor} of \texttt{InsuranceLogic}, as shown in code fragment~\ref{code:constructor_InsuranceLogic}.
+
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -688,7 +705,8 @@ IPricingLogic public pricingLogic;
     \label{code:constructor_InsuranceLogic}
 \end{codefragment}
 
-A \texttt{receive} method, see code fragment \ref{code:receive_method} must be added to enable the smart contract to collect funds from investors but also the premium from policyholder
+A \texttt{receive} method, see code fragment~\ref{code:receive_method}, must be added to enable the smart contract to collect funds from investors as well as premiums from policyholders.
+
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -698,7 +716,7 @@ receive() external payable {}
     \label{code:receive_method}
 \end{codefragment}
 
-The contract owner can change the parameters of the parametric insurancee scheme. These parameters are the premium loading and the risk level of the solvency capitals. The solidity code of the \texttt{updateParameters} method is provided in code fragment \ref{code:updateParameters_method}.
+The contract owner can change the parameters of the parametric insurance scheme. These parameters include the premium loading and the risk level of the solvency capitals. The Solidity code of the \texttt{updateParameters} method is provided in code fragment~\ref{code:updateParameters_method}.
 
 
 \begin{codefragment}[!h]
@@ -736,10 +754,9 @@ function updateParameters(uint16 newEta, uint16 newQAlphaSCR, uint16 newQAlphaMC
     \label{code:updateParameters_method}
 \end{codefragment}
 
-A change in the order of the quantile of the normal distribution used to calculate the Value-at-Risk implies an update of the MCR and SCR. \\
+A change in the order of the quantile of the normal distribution used to calculate the Value-at-Risk implies an update of the MCR and SCR.
 
-The surplus provider locks funds on the smart contarct in exchange of what they get protocol tokens. This mechanism is encoded in the \texttt{fundContract} method shown in code fragment \ref{code:fundContract_method}.
-
+The surplus provider locks funds in the smart contract in exchange for protocol tokens. This mechanism is encoded in the \texttt{fundContract} method shown in code fragment~\ref{code:fundContract_method}.
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -759,7 +776,8 @@ function fundContract() public payable {
     \label{code:fundContract_method}
 \end{codefragment}
 
-We store the address of the surplus provider in case it is a new comer and we further update the token holdings and the total supply of token as new units are being minted. The converse operation consists in burning protocol token and withdrawing ETH. This can be done via the \texttt{withdraw} method provided in code fragment \ref{code:withdraw}.
+We store the address of the surplus provider in case they are a newcomer, and we further update the token holdings and the total supply of tokens as new units are minted. The converse operation consists of burning protocol tokens and withdrawing ETH. This can be done via the \texttt{withdraw} method provided in code fragment~\ref{code:withdraw}.
+
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -782,7 +800,8 @@ We store the address of the surplus provider in case it is a new comer and we fu
     \label{code:withdraw_method}
 \end{codefragment}
 
-Before buying coverage from our smart contract, customers can ask for a quote using the \texttt{getQuote}.
+Before buying coverage from our smart contract, customers can ask for a quote using the \texttt{getQuote} method.
+
 
 \begin{codefragment}[!h]
 \begin{lstlisting}[language=Solidity]
@@ -797,8 +816,322 @@ function getQuote(uint256 T, string memory station, uint256 l) public view retur
     \label{code:getQuote_method}
 \end{codefragment}
 
-The premium calculation relies on the \texttt{getProbability} method of \texttt{PricingLogic}.
+The premium calculation relies on the \texttt{getProbability} method of \texttt{PricingLogic}. The commercial premium is then obtained after applying a loading to the pure premium. The customer, equipped with a quote, can then underwrite a contract using the \texttt{underwritePolicy} method. The code is provided in the code fragments~\ref{code:underwritePolicy_method_1} and~\ref{code:underwritePolicy_method_2}.
 
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+function underwritePolicy(uint256 T, string memory station,  uint256 l) public payable {
+        uint256 p = pricingLogic.getProbability(T, station);
+        uint256 pp = (l * p) / factor;
+        uint256 cp = (pp * (factor + eta)) / factor;
+        require(msg.value == cp, "Incorrect premium amount sent");
+        Nt++;
+        (bool success, ) = payable(address(this)).call{value: msg.value}("");
+        require(success, "Failed to transfer premium to reserve");
+        modelPointsLogic.addInsuranceContract(station, T, p, l);
+        mu += p * l * eta / factor / factor;
+        l_tot += l;
+        
+        Nt_MP_active = modelPointsLogic.Nt_MP_active();
+        if (Nt_MP_active < Nt_MP_active_min) {
+            SCR = l_tot;
+            MCR = l_tot;
+        }
+        else {
+            uint256 sn2 = modelPointsLogic.sn2();
+            sn = sqrt(sn2);
+            uint256 gamma1_unormalized = modelPointsLogic.gamma1_unormalized();
+            gamma1 = gamma1_unormalized / sn / sn / sn;
+            
+            SCR = sn * qAlphaSCR / factor + sn * gamma1 * qAlphaSCR * qAlphaSCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
+            MCR = sn * qAlphaMCR / factor + sn * gamma1 * qAlphaMCR * qAlphaMCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
+        }
+        uint8 status = 0;
+        InsuranceContract memory policy = InsuranceContract({
+            customer: msg.sender,
+            T: T, 
+            station: stringToBytes32(station), // Description of the insured event
+            l: l,
+            p:p ,
+            eta: eta,
+            refund:cp,
+            status: status});
+                \end{lstlisting}
+    \caption{Part 1 of \texttt{underwritePolicy} method of \texttt{InsuranceLogic}}
+    \label{code:underwritePolicy_method_1}
+\end{codefragment}
+
+The portfolio of contracts, model points, and the statistics of the liability are updated accordingly, hence the interaction with \texttt{ModelPointsLogic} through the method \texttt{addInsuranceContract}. The insurance agreement can only be concluded if the surplus is higher than the SCR; otherwise, the contract gets canceled right away, as shown in code fragment~\ref{code:underwritePolicy_method_2}.
+
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+        if (Xt <= SCR) {
+            status = 3;
+            policy.status = status;
+            modelPointsLogic.removeInsuranceContract(Nt, "cancelled");
+            sendPayout(payable(msg.sender), cp);
+            mu -= p * l * eta / factor / factor;
+            l_tot -= l;
+            Nt_MP_active = modelPointsLogic.Nt_MP_active();
+            if (Nt_MP_active < Nt_MP_active_min) {
+                SCR = l_tot;
+                MCR = l_tot;
+            }
+            else {
+                uint256 sn2 = modelPointsLogic.sn2();
+                sn = sqrt(sn2);
+                uint256 gamma1_unormalized = modelPointsLogic.gamma1_unormalized();
+                gamma1 = gamma1_unormalized / sn / sn / sn;
+                SCR = sn * qAlphaSCR / factor + sn * gamma1 * qAlphaSCR * qAlphaSCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
+                MCR = sn * qAlphaMCR / factor + sn * gamma1 * qAlphaMCR * qAlphaMCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
+                }
+        } 
+        insuranceContracts[Nt] = policy;
+        emit InsuranceUnderwritten(Nt, msg.sender, T, stringToBytes32(station), l, cp, status, SCR, MCR);
+    }
+    \end{lstlisting}
+\caption{Part 2 of \texttt{underwritePolicy} method of \texttt{InsuranceLogic}}
+    \label{code:underwritePolicy_method_2}
+\end{codefragment}
+
+Once the triggering event date is reached, the contract owner inputs the value of the parameter for that date. We would like to automate this task using a data oracle, but for now we rely on the contract owner to settle the insurance agreement. The code is provided in code fragments~\ref{code:settle_method_1} and~\ref{code:settle_method_2}.
+
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+function settle(uint256 contractId, uint256 Q_observed) public {
+        InsuranceContract storage policy = insuranceContracts[contractId];
+        require(policy.customer != address(0), "Invalid contract ID");
+        require(msg.sender == owner, "Not authorized");
+        require(policy.status == 0, "Contract is not active");
+        
+        modelPointsLogic.removeInsuranceContract(contractId, "closed");
+        mu -= policy.p * policy.l * policy.eta / factor / factor;
+        l_tot -= policy.l;
+        Nt_MP_active = modelPointsLogic.Nt_MP_active();
+        if (Nt_MP_active < Nt_MP_active_min) {
+            SCR = l_tot;
+            MCR = l_tot;
+        }
+        else {
+            uint256 sn2 = modelPointsLogic.sn2();
+            sn = sqrt(sn2);
+            uint256 gamma1_unormalized = modelPointsLogic.gamma1_unormalized();
+            gamma1 = gamma1_unormalized / sn / sn / sn;
+            
+            SCR = sn * qAlphaSCR / factor + sn * gamma1 * qAlphaSCR * qAlphaSCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
+            MCR = sn * qAlphaMCR / factor + sn * gamma1 * qAlphaMCR * qAlphaMCR / factor / factor / 6 - sn * gamma1 / 6 - mu;
+            }
+        if (Q_observed >= 5) {
+            sendPayout(payable(policy.customer), policy.l);
+            policy.status = 1; // Settled with compensation
+            updateReserveAfterSettlement(policy.l, policy.p, policy.eta, true);
+            emit ClaimSettled(contractId, policy.customer, true, SCR, MCR);
+        } 
+
+        
+
+        \end{lstlisting}
+\caption{Part 1 of \texttt{settle} method of \texttt{InsuranceLogic}}
+    \label{code:settle_method_1}
+\end{codefragment}
+
+We again have interactions with \texttt{ModelPointsLogic}, except that we use the \texttt{removeInsuranceContract} method. A claim is paid if the observable quantity is greater than 5. It is then possible that the surplus falls below the MCR, in which case the smart contract must be reset using the \texttt{refundPremiumToPolicyholders} and \texttt{redistributeToInvestors} methods described later on.
+ 
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+
+
+        else {
+            updateReserveAfterSettlement(policy.l, policy.p, policy.eta, false);
+            policy.status = 2; // Settled without compensation
+            emit ClaimSettled(contractId, policy.customer, false, SCR, MCR);
+            
+        }    
+        if (Xt < MCR) {
+            refundPremiumToPolicyholders();
+            if (Xt > 0){
+                redistributeToInvestors();
+            }
+            SCR=0;
+            MCR=0;
+            sn=0;
+            mu=0;
+            gamma1=0;
+            rt=10000;
+            Xt=0;
+            Nt_MP_active=0;
+            modelPointsLogic.cancelAllActiveContracts();
+        }
+        
+    }
+        \end{lstlisting}
+\caption{Part 2 of \texttt{settle} method of \texttt{InsuranceLogic}}
+    \label{code:settle_method_2}
+\end{codefragment}
+
+The \texttt{updateReserveAfterSettlement} method updates the surplus depending on whether a claim has been paid or not; see code fragment~\ref{code:updateReserveAfterSettlement_method}.
+
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+function updateReserveAfterSettlement(uint256 l, uint256 p, uint256 eta_S, bool settlement) internal {
+        uint256 pp = (l * p) / factor;
+        uint256 cp = (pp * (factor + eta_S)) / factor;
+        if (settlement) {
+            Xt += cp;
+            Xt -= l;
+
+        } else {
+            Xt += cp;
+        }
+        rt = totalSupply > 0 ? (Xt * (factor)) / totalSupply : 1;
+    }
+            \end{lstlisting}
+\caption{\texttt{updateReserveAfterSettlement} method of \texttt{InsuranceLogic}}
+    \label{code:updateReserveAfterSettlement_method}
+\end{codefragment}
+
+When the smart contract must undergo a reset, the first step is to refund the policyholders with active policies. This is done via the \texttt{refundPremiumToPolicyholders} method of code fragment~\ref{code:refundPremiumToPolicyholders_method}.
+
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+function refundPremiumToPolicyholders() internal {
+        // require(Xt < MCR, "Reserve is above MCR");
+        Xt = address(this).balance;
+        require(Xt > 0, "Nothing to refund");
+        uint256 TotalRefund = 0;
+        uint256 ActivePolicyCount = 0;
+
+        // Calculate total refund amount for active policies
+        for (uint256 i = 1; i <= Nt; i++) {
+            if (insuranceContracts[i].status == 0) { // Active contract
+                TotalRefund += insuranceContracts[i].refund;
+                ActivePolicyCount++;
+            }
+        }
+
+        require(TotalRefund > 0, "No active policies to refund");
+
+        // Check if the reserve is sufficient for full refunds
+        if (Xt >= TotalRefund) {
+            // Fully refund all policyholders
+            for (uint256 i = 1; i <= Nt; i++) {
+                if (insuranceContracts[i].status == 0) { // Active contract
+                    uint256 refundAmount = insuranceContracts[i].refund;
+                    insuranceContracts[i].status = 3; // Mark as refunded
+                    modelPointsLogic.removeInsuranceContract(i, "cancelled");
+                    sendPayout(payable(insuranceContracts[i].customer), refundAmount);
+                    Xt -= refundAmount;
+                }
+            }
+        } else {
+            // Prorated refunds
+            for (uint256 i = 1; i <= Nt; i++) {
+                if (insuranceContracts[i].status == 0) { // Active contract
+                    uint256 proratedRefund = (insuranceContracts[i].refund * Xt) / TotalRefund;
+                    insuranceContracts[i].status = 3; // Mark as refunded
+                    modelPointsLogic.removeInsuranceContract(i, "cancelled");
+                    sendPayout(payable(insuranceContracts[i].customer), proratedRefund);
+                }
+            }
+            Xt = 0; // All reserve used
+        }
+    }
+                \end{lstlisting}
+\caption{\texttt{refundPremiumToPolicyholders} method of \texttt{InsuranceLogic}}
+    \label{code:refundPremiumToPolicyholders_method}
+\end{codefragment}
+
+The second step is to redistribute the remaining funds to the surplus providers, which is done using the \texttt{redistributeToInvestors} method in code fragment~\ref{code:redistributeToInvestors_method}.
+
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+function redistributeToInvestors() internal {
+        Xt = address(this).balance;
+        require(Xt > 0, "Nothing to distribute");
+        for (uint256 i = 0; i < investorAddresses.length; i++) {
+            address investor = investorAddresses[i];
+            uint256 investorShare = (Yt[investor] * Xt) / totalSupply;
+            Yt[investor] = 0;
+            if (investorShare > 0) {
+                sendPayout(payable(investor), investorShare);
+            }
+        }
+        Xt = 0; // All reserve distributed
+        totalSupply = 0;
+        delete investorAddresses;
+    }
+                \end{lstlisting}
+\caption{\texttt{redistributeToInvestors} method of \texttt{InsuranceLogic}}
+    \label{code:redistributeToInvestors_method}
+\end{codefragment}
+
+We have implemented our own square root function using the ancient Babylonian method. The code is provided in code fragment~\ref{code:redistributeToInvestors_method}.
+
+
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+function sqrt(uint256 y) public pure returns (uint256 z) {
+        if (y > 3) {
+            z = y;
+            uint256 x = y / 2 + 1;
+            while (x < z) {
+                z = x;
+                x = (y / x + x) / 2;
+            }
+        } else if (y != 0) {
+            z = 1;
+        }
+    }
+                \end{lstlisting}
+\caption{\texttt{redistributeToInvestors} method of \texttt{InsuranceLogic}}
+    \label{code:redistributeToInvestors_method}
+\end{codefragment}
+
+The helper function \texttt{sendPayout} in code fragment \ref{code:sendPayout_method} ensure that ETH transfers from smart contract to policyholders or investors are possible. 
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+function sendPayout(address payable customer, uint256 l) internal {
+        require(address(this).balance >= l, "Insufficient reserve for payout");
+        (bool success, ) = customer.call{value: l}("");
+        require(success, "Failed to send payout to policyholder");
+    }
+
+                    \end{lstlisting}
+\caption{\texttt{sendPayout} method of \texttt{InsuranceLogic}}
+    \label{code:sendPayout_method}
+\end{codefragment}
+
+Lastly, the helper function \texttt{stringToBytes32} transforms a character string into a sequence of 32 bytes, which is the common representation of a word in Solidity. The code is provided in code fragment~\ref{code:stringToBytes32_method}.
+
+
+\begin{codefragment}[!h]
+\begin{lstlisting}[language=Solidity]
+
+function stringToBytes32(string memory source) public pure returns (bytes32 result) {
+        bytes memory tempEmptyStringTest = bytes(source);
+        if (tempEmptyStringTest.length == 0) {
+            return 0x0;
+        }
+
+        assembly {
+            result := mload(add(source, 32))
+        }
+    }
+
+                        \end{lstlisting}
+\caption{\texttt{stringToBytes32} method of \texttt{InsuranceLogic}}
+    \label{code:stringToBytes32_method}
+\end{codefragment}
+
+A word can be arbitrarily long, which can be problematic when stored in an event. It is therefore possible to store it under the \texttt{bytes32} format so that its length becomes predictable.
 
 % In Code Fragment \ref{code:struct_declaration}, we introduce a custom data type to store the relevant information for a parametric insurance contract.
 % \begin{codefragment}[!h]
